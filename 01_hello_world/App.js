@@ -3,6 +3,8 @@ import HomeScreen from './components/HomeScreen';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import Results from './components/Results';
+import Settings from './components/Settings';
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -15,6 +17,8 @@ export default function App() {
         }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Add Task" component={AddTask} />
+        <Stack.Screen name="Results" component={Results} />
+        <Stack.Screen name="Settings" component={Settings} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,15 +1,32 @@
 import * as React from 'react';
-import { Button, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { StatusBar, View } from 'react-native';
+import TaskButton from './static/TaskButton';
 
 export default function HomeScreen({ navigation }) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button
-        title="Add Task"
-        onPress={() => navigation.navigate('Add Task')}
+    <View style={{ flex: 1, alignItems: 'center' }}>
+      <StatusBar 
+        barStyle="dark-content"
+        animated={true}
+        hidden={false}
       />
+      <View style={{
+        width: "100%",
+        padding: 20,
+       }}>
+        <TaskButton
+          onPress={() => navigation.navigate('Add Task')}
+          title="Add Task"
+        ></TaskButton>
+        <TaskButton
+          title="Results"
+          onPress={() => navigation.navigate('Results')}
+        />
+        <TaskButton
+          title="Settings"
+          onPress={() => navigation.navigate('Settings')}
+        />
+      </View>
     </View>
   );
 }
