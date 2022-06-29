@@ -1,29 +1,45 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Text, View, Button } from 'react-native';
+import { Text, View, StyleSheet, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataTable } from 'react-native-paper';
+import MapView, { Marker } from 'react-native-maps';
 
 export default function Results({ navigation }) {
   const [data, setData] = useState([])
   const [isDataReady, setDataReady] = useState(false) 
+  const [markers, setMarkers] = useState(null)
 
   useEffect(() => {
     getData()
   }, [])
 
+  useEffect(() => {
+  }, [markers])
+
+  useEffect(() => {
+    if(data.length>0) {
+      const tmpObj = {
+        latitude: data[0].location.latitude,
+        longitude: data[0].location.longitude,
+        title: data[0].category,
+        subtitle: data[0].comment
+      }
+  
+      setMarkers(tmpObj)
+    }
+  }, [data])
+
   const getData = async () => {
     try {
       const value = await AsyncStorage.getItem('@storage_Key')
-      console.log(value)
-      if(value !== null) {
-        setData(JSON.parse(value))
-        setDataReady(true)
-      } else {
-        console.log("no dasa")
-      }
+      const parsedValue = JSON.parse(value)
+
+      setData(parsedValue)
+
+      setDataReady(true)
     } catch(e) {
-      // error reading value
+      console.error(e)
     }
   }
 
@@ -46,6 +62,32 @@ export default function Results({ navigation }) {
         )}
 
       </DataTable> : <Text></Text>}
+      <View style={styles.container}>
+      
+      {markers ? 
+        <MapView style={styles.map} annotations={markers}>
+          <Marker 
+            coordinate={{latitude: markers.latitude, longitude: markers.longitude}}
+            pinColor = {"purple"} // any color
+            title={markers.title}
+            description={markers.subtitle}
+            />
+        </MapView>
+      : <Text></Text>}
+    </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  map: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').width,
+  },
+});

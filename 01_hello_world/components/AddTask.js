@@ -1,12 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, Button, View } from 'react-native';
+import { StyleSheet, Text, TextInput, Button, View, LogBox } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TaskButton from './static/TaskButton';
+import * as Location from 'expo-location';
 
 export default function AddTask({ navigation }) {
     const {navigate} = navigation
+    const [location, setLocation] = useState(null);
     const [open, setOpen] = useState(false);
     const [data, setData] = useState([])
     const [dropdownValue, setDropdownValue] = useState(null)
@@ -18,41 +20,32 @@ export default function AddTask({ navigation }) {
         {label: 'Work', value: 'work'},
         {label: 'Food', value: 'food'}
     ]);
-    
-    async function handlePress() {
+
+    useEffect(() => {
+      console.log("Location jas changed")
+
+      if(location) {
+        const parsedLocation = JSON.parse(location)
         const tmpObj = {
-            "category": dropdownValue,
-            "amount": amount,
-            "comment": comment
+          "category": dropdownValue,
+          "amount": amount,
+          "comment": comment,
+          "location": {
+            "latitude": parsedLocation.coords.latitude,
+            "longitude": parsedLocation.coords.longitude,
+          }
         }
-
-        console.log(data, tmpObj)
-
         setData(data.concat(tmpObj))
         storeData()
 
-    }
+        console.log("data saved")
+      }
+    }, [location])
 
     useEffect(() => {
-        const tmpObj = [
-            {
-                "category": "car",
-                "amount": 144,
-                "comment": "no comment"
-            },
-            {
-                "category": "house",
-                "amount": 500,
-                "comment": "the house is ass"
-            },
-            {
-                "category": "work",
-                "amount": 400000,
-                "comment": "comment"
-            },
-        ]
-        storeDataStart(tmpObj)
-    }, [])
+      const tmpObj = []
+      storeDataStart(tmpObj)
+      }, []);
 
     const storeDataStart = async (tmpData) => {
         try {
@@ -62,25 +55,36 @@ export default function AddTask({ navigation }) {
         }
       }
 
+      const getCurrentLocation = () => {
+        (async () => {
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') return;
+          
+          let location = await Location.getCurrentPositionAsync({});
+          setLocation(JSON.stringify(location));
+        })();
+      }
+
     const storeData = async () => {
         try {
           const jsonValue = JSON.stringify(data)
+          console.log(jsonValue)
           await AsyncStorage.setItem('@storage_Key', jsonValue)
         } catch (e) {
-          // saving error
+          console.error(e)
         }
       }
 
-      const getData = async () => {
-        try {
-          const value = await AsyncStorage.getItem('@storage_Key')
-          if(value !== null) {
-            console.log(value)
-          }
-        } catch(e) {
-          // error reading value
+    const getData = async () => {
+      try {
+        const value = await AsyncStorage.getItem('@storage_Key')
+        if(value !== null) {
+          console.log(JSON.parse(value)) 
         }
+      } catch(e) {
+        console.error(e)
       }
+    }
 
     return (
         <View style={styles.container}>
@@ -113,7 +117,7 @@ export default function AddTask({ navigation }) {
             />
             <TaskButton
                 title="Save"
-                onPress={() => handlePress()}
+                onPress={() => getCurrentLocation()}
             />
             <Button title="get data" onPress={() => getData()}/>
         </View>
