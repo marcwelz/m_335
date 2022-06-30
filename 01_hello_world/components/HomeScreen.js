@@ -27,6 +27,10 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.navigate('Timer')}
         />
         <TaskButton
+          title="Diagram"
+          onPress={() => navigation.navigate('Diagram')}
+        />
+        <TaskButton
           title="Settings"
           onPress={() => navigation.navigate('Settings')}
         />

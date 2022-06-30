@@ -18,7 +18,7 @@ export default function Results({ navigation }) {
   }, [markers])
 
   useEffect(() => {
-    if(data.length>0) {
+    if(!data && data.length>0) {
       const tmpObj = {
         latitude: data[0].location.latitude,
         longitude: data[0].location.longitude,
